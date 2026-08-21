@@ -1,0 +1,42 @@
+# --- Large binary artifacts (never commit) ---
+*.gguf
+*.bin
+*.onnx
+*.exe
+*.dll
+*.so
+*.dylib
+*.zip
+*.7z
+
+# --- Bundled runtimes & downloaded tools (assembled at build time) ---
+runtime/**
+!runtime/README.md
+tools/**
+!tools/README.md
+
+# --- Runtime data, logs, caches ---
+logs/**
+!logs/README.md
+*.log
+*.db
+*.sqlite
+*.sqlite3
+rag/vector_store/**
+rag/uploads/**
+rag/work/**
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# --- OS / editor cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# --- Local environment ---
+.env
+*.local
