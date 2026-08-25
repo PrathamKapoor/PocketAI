@@ -4,9 +4,7 @@
 > Plug it into a restricted college PC and turn it into a useful AI workstation —
 > no internet, no accounts, no API keys, no installs, no admin rights.
 
-**Status:** complete (Phases 1–11 verified, v1.0.0). 110 tests (109 passed,
-1 skipped), all seven portability/failure scenarios tested live. Docs in
-[`docs/`](docs/ARCHITECTURE.md). Product docs:
+ Product docs:
 [overview](docs/PRODUCT_OVERVIEW.md) · [demo guide](docs/DEMO_GUIDE.md).
 
 ---
