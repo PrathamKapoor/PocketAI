@@ -1,0 +1,9 @@
+{
+  "$comment": "NORMAL MODE - clean 8GB+ systems with enough free RAM at startup (>= selection.normal_requires_free_mb_at_startup). Selected in the 7-12GB band when free RAM allows, or above 12GB when the performance profile's free-RAM bar is not met.",
+  "description": "NORMAL MODE - clean 8GB+ systems with enough free RAM at startup. Larger context if memory allows.",
+  "max_generation_tokens": 1536,
+  "history_budget_tokens": 2500,
+  "parallel_requests": 1,
+  "parallel_requests_note": "Still 1 slot on the server; NORMAL buys context budget, not parallelism.",
+  "recommended_server_context": 8192
+}

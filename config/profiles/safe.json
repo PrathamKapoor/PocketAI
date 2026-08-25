@@ -1,0 +1,9 @@
+{
+  "$comment": "SAFE MODE - unknown or constrained 8GB PCs (typical locked-down college machines). Conservative memory use. Selected when total RAM < 7GB, or in the 7-12GB band without enough free RAM at startup.",
+  "description": "SAFE MODE - unknown or constrained 8GB PCs (typical college machines). Conservative memory use.",
+  "max_generation_tokens": 768,
+  "history_budget_tokens": 1200,
+  "parallel_requests": 1,
+  "parallel_requests_note": "Always 1: llama-server runs with -np 1 (single slot). Requests are queued, never parallel.",
+  "recommended_server_context": 4096
+}

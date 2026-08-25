@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PocketAI</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<a href="#input" class="skip-link">Skip to chat input</a>
+<header class="topbar" role="banner">
+  <div class="brand">
+    <span class="brand-mark">&#9670;</span> PocketAI
+    <span class="brand-sub">offline assistant <span id="brand-version"></span></span>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab active" id="tab-chat" role="tab" aria-selected="true">Chat</button>
+    <button class="tab" id="tab-docs" role="tab" aria-selected="false">Documents</button>
+    <button class="tab" id="tab-demo" role="tab" aria-selected="false">Demo</button>
+    <button class="tab" id="tab-about" role="tab" aria-selected="false">About</button>
+  </nav>
+  <div class="status-cluster" role="status" aria-label="System status" hidden>
+    <span class="status-pill" id="status-profile" title="Hardware profile" aria-live="polite">&hellip;</span>
+    <span class="status-pill" id="status-ram" title="Free memory" aria-live="polite">&hellip;</span>
+  </div>
+  <span class="model-indicator" id="model-indicator" aria-live="polite" title="Active model">Model &hellip;</span>
+  <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle theme">
+    <span class="theme-icon-dark" aria-hidden="true">&#9790;</span>
+    <span class="theme-icon-light" aria-hidden="true">&#9728;</span>
+  </button>
+</header>
+
+<main>
+  <!-- ============ Chat view ============ -->
+  <section class="view active" id="view-chat" role="tabpanel">
+    <aside class="chat-sidebar" id="chat-sidebar" aria-label="Conversation history">
+      <button type="button" class="new-chat-btn" id="new-chat-btn">+ New chat</button>
+      <div class="conv-list" id="conv-list"></div>
+    </aside>
+    <div class="chat-main">
+      <div class="chat-scroll" id="chat-scroll">
+        <div class="welcome" id="welcome">
+          <h1>PocketAI</h1>
+          <p>Your offline AI assistant. Everything runs on this machine &mdash;
+          no internet, no accounts.</p>
+          <div class="welcome-hints">
+            <p>Try something:</p>
+            <ul>
+              <li>Ask a question about any topic</li>
+              <li>Paste a screenshot with Ctrl+V and ask about it</li>
+              <li>Upload a PDF in the Documents tab and ask questions about it</li>
+              <li>Upload a code screenshot and ask for debugging help</li>
+            </ul>
+          </div>
+        </div>
+        <div class="messages" id="messages"></div>
+      </div>
+       <form class="composer" id="composer">
+         <div class="composer-box">
+           <div class="attachment-preview" id="attachment-preview" hidden>
+             <img class="attachment-thumb" id="attachment-thumb" alt="attachment preview">
+             <div class="attachment-meta">
+               <span class="attachment-name" id="attachment-name"></span>
+               <span class="attachment-error" id="attachment-error"></span>
+             </div>
+             <button type="button" class="attachment-remove" id="attachment-remove"
+               title="Remove image" aria-label="Remove image">&times;</button>
+           </div>
+            <textarea id="input" rows="2" maxlength="8000"
+              placeholder="Ask anything&hellip;"
+              title="Enter to send, Shift+Enter for a new line"
+              aria-label="Chat message input"></textarea>
+<div class="composer-bar">
+              <div class="popover" id="style-pop">
+                <button type="button" class="toolbar-btn" id="style-chip"
+                  title="Thinking style"
+                  aria-haspopup="menu"
+                  aria-expanded="false">Auto &#9662;</button>
+                <div class="popover-menu" id="style-menu" role="menu"></div>
+              </div>
+                <button type="button" class="toolbar-btn" id="attach-btn"
+                  title="Attach an image (or paste from clipboard)"
+                  aria-label="Attach image">&#128247; Image</button>
+                <button type="button" class="toolbar-btn" id="save-chat-btn"
+                  title="Save conversation to file"
+                  aria-label="Save conversation">&#128190; Save</button>
+                <button type="button" class="toolbar-btn" id="shortcuts-btn"
+                  title="Keyboard shortcuts"
+                  aria-label="Keyboard shortcuts">?</button>
+              <label class="use-docs" title="Search uploaded documents for context">
+                <input type="checkbox" id="use-docs"> docs
+              </label>
+              <button type="submit" class="toolbar-btn primary" id="send-btn" title="Send" aria-label="Send message">&#8593;</button>
+            </div>
+           <input type="file" id="image-input" accept="image/png,image/jpeg,image/webp,image/bmp" hidden>
+         </div>
+       </form>
+    </div>
+  </section>
+
+  <!-- ============ Documents view (RAG) ============ -->
+  <section class="view" id="view-docs" role="tabpanel">
+    <div class="docs-layout">
+      <div class="docs-panel">
+        <h2>Knowledge base</h2>
+        <p class="docs-hint">Upload PDF, TXT or Markdown files. PocketAI searches
+        them locally when you enable &ldquo;use documents&rdquo; in chat.</p>
+        <form class="upload-row" id="upload-form">
+          <input type="file" id="file-input" accept=".pdf,.txt,.md,.markdown,.pptx" multiple
+            aria-label="Select files to upload">
+          <button type="submit" id="upload-btn" aria-label="Upload selected files">Upload</button>
+        </form>
+        <div id="upload-status" class="upload-status" role="status"></div>
+        <table class="doc-table" id="doc-table">
+          <thead><tr><th>Name</th><th>Chunks</th><th>Size</th><th></th></tr></thead>
+          <tbody id="doc-tbody"></tbody>
+        </table>
+      </div>
+      <div class="search-panel">
+        <h2>Search</h2>
+        <form class="upload-row" id="search-form">
+          <input type="text" id="search-input" placeholder="Search your documents&hellip;"
+            aria-label="Search documents">
+          <button type="submit" aria-label="Search documents">Search</button>
+        </form>
+        <div id="search-results" class="search-results"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Demo view ============ -->
+  <section class="view" id="view-demo" role="tabpanel">
+    <div class="demo-layout">
+      <div class="docs-panel">
+        <h2>Sample documents</h2>
+        <p class="docs-hint">Load two small sample documents into the knowledge
+        base, then ask about them in chat with &ldquo;docs&rdquo; checked.</p>
+        <div class="upload-row">
+          <button type="button" id="demo-docs-btn" aria-label="Load sample documents">Load sample documents</button>
+        </div>
+        <div id="demo-docs-status" class="upload-status" role="status"></div>
+      </div>
+      <div class="docs-panel">
+        <h2>Showcase prompts</h2>
+        <p class="docs-hint">Click a prompt to place it in the chat input
+        (nothing is sent automatically).</p>
+        <div id="demo-prompts" class="demo-chips"></div>
+      </div>
+      <div class="docs-panel demo-panel-wide">
+        <h2>Sample conversation</h2>
+        <p class="docs-hint">Illustrative exchange, written for this demo &mdash;
+        not live model output.</p>
+        <div id="demo-conversation" class="demo-conversation"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ About view ============ -->
+  <section class="view" id="view-about" role="tabpanel">
+    <div class="about-layout">
+      <h2>About PocketAI</h2>
+      <p class="docs-hint" id="about-tagline">A portable, offline AI assistant.
+      The model, the search index, and every conversation stay on this
+      machine.</p>
+      <div class="about-grid" id="about-system"></div>
+
+      <h3>Thinking styles</h3>
+      <table class="doc-table about-modes">
+        <thead><tr><th>Style</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td>Auto (default)</td><td>Detects what you need and picks the right style automatically.</td></tr>
+          <tr><td>Fast</td><td>Quick answers for simple questions.</td></tr>
+          <tr><td>Balanced</td><td>Normal tasks: everyday questions, explanations and advice.</td></tr>
+          <tr><td>Deep Think</td><td>Complex reasoning: trade-offs, risks and second opinions.</td></tr>
+          <tr><td>Research</td><td>Analysis and comparison, ending in a clear recommendation.</td></tr>
+          <tr><td>Build</td><td>Coding and creation: working code, fixes and debugging help.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Developer mode</h3>
+      <p class="docs-hint">PocketAI works through internal stages and shows you
+      only the final answer. Enable this to see which thinking style and
+      internal stages ran behind each reply, plus model, hardware and memory
+      status.</p>
+      <label class="docs-hint">
+        <input type="checkbox" id="devmode-toggle"> Show internal workflow details and system status
+      </label>
+
+      <h3>Known limitations</h3>
+      <ul class="welcome-hints" id="about-limits">
+        <li>Single-slot inference: one answer at a time, queued.</li>
+        <li>CPU-only on typical hardware &mdash; expect roughly 8&ndash;10 tokens/second.</li>
+        <li>A 4B-parameter model: great for everyday tasks, not for frontier-level reasoning.</li>
+        <li>Targets machines with 8&nbsp;GB RAM; low memory blocks inference by design.</li>
+        <li>No cloud, no accounts, no telemetry &mdash; and no web access from the model.</li>
+      </ul>
+
+      <h3>Documentation</h3>
+      <ul class="welcome-hints about-docs">
+        <li><code>docs/PRODUCT_OVERVIEW.md</code> &mdash; what PocketAI is and who it is for</li>
+        <li><code>docs/DEMO_GUIDE.md</code> &mdash; a guided 5-minute demo</li>
+        <li><code>docs/USER_GUIDE.md</code> &mdash; everyday usage, thinking styles, documents</li>
+        <li><code>docs/ARCHITECTURE_DIAGRAM.md</code> &mdash; components and request flow</li>
+        <li><code>docs/SECURITY.md</code>, <code>docs/PERFORMANCE.md</code>, <code>docs/LIMITATIONS.md</code></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<!-- ============ Save conversation dialog ============ -->
+<div class="overlay" id="save-dialog" role="dialog" aria-modal="true" aria-labelledby="save-dialog-title" aria-describedby="save-dialog-desc">
+  <div class="overlay-card">
+    <h1 id="save-dialog-title">Save this chat?</h1>
+    <p id="save-dialog-desc">Save the conversation to a file on this machine.</p>
+    <div class="overlay-actions">
+      <button type="button" id="save-btn" aria-label="Save conversation">Save</button>
+      <button type="button" id="save-cancel-btn" aria-label="Don't save conversation">Don't Save</button>
+    </div>
+    <div class="save-status" id="save-status" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ============ Keyboard shortcuts help ============ -->
+<div class="overlay" id="shortcuts-dialog" role="dialog" aria-modal="true" aria-labelledby="shortcuts-dialog-title" aria-describedby="shortcuts-dialog-desc">
+  <div class="overlay-card">
+    <h1 id="shortcuts-dialog-title">Keyboard Shortcuts</h1>
+    <p id="shortcuts-dialog-desc">Keyboard shortcuts for quick actions.</p>
+    <table class="shortcuts-table" role="presentation">
+      <tr><td><kbd>Enter</kbd></td><td>Send message</td></tr>
+      <tr><td><kbd>Ctrl+V</kbd></td><td>Paste image from clipboard</td></tr>
+      <tr><td><kbd>Escape</kbd></td><td>Remove image attachment / Close dialog</td></tr>
+    </table>
+    <div class="overlay-actions">
+      <button type="button" id="shortcuts-close-btn" aria-label="Close shortcuts dialog">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ First-run overlay ============ -->
+<div class="overlay" id="firstrun" role="dialog" aria-modal="true" aria-labelledby="firstrun-title">
+  <div class="overlay-card">
+    <h1 id="firstrun-title"><span class="brand-mark">&#9670;</span> Welcome to PocketAI</h1>
+    <p>A portable AI assistant that runs entirely on this machine. No internet,
+    no accounts, no data leaves the device.</p>
+    <ul class="welcome-hints">
+      <li><strong>Chat</strong> &mdash; type a question or paste a screenshot (Ctrl+V)</li>
+      <li><strong>Images</strong>: paste from clipboard or click the Image button</li>
+      <li><strong>Thinking styles</strong>: Fast, Balanced, Deep Think, Research,
+      Build &mdash; or leave it on Auto</li>
+      <li><strong>Documents</strong>: upload PDF/TXT/MD files and ask questions about them</li>
+      <li><strong>Demo tab</strong>: sample documents, prompts, and a sample conversation</li>
+    </ul>
+    <div class="overlay-actions">
+      <button type="button" id="firstrun-close">Start using PocketAI</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

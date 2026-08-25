@@ -1,0 +1,9 @@
+# PocketAI backend runtime dependencies (Phase 5 + Phase 7 RAG).
+# Target deployment bundles these wheels with the embeddable Python runtime;
+# nothing here is fetched at app runtime (offline constraint).
+fastapi>=0.115
+uvicorn>=0.30
+httpx>=0.27
+pillow>=10.0         # image decode/normalize/OCR preprocessing (image input)
+pypdf>=4.0            # PDF text extraction for the RAG pipeline
+python-multipart>=0.0.9  # multipart/form-data uploads (POST /documents/upload)

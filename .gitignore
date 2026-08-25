@@ -8,27 +8,30 @@
 *.dylib
 *.zip
 *.7z
+*.traineddata
 
 # --- Bundled runtimes & downloaded tools (assembled at build time) ---
-runtime/**
-!runtime/README.md
-tools/**
-!tools/README.md
+runtime/python/
+runtime/models/
+runtime/llama.cpp/
+runtime/ocr/
 
 # --- Runtime data, logs, caches ---
-logs/**
-!logs/README.md
+logs/
 *.log
 *.db
+*.db-wal
+*.db-shm
 *.sqlite
 *.sqlite3
-rag/vector_store/**
-rag/uploads/**
-rag/work/**
+storage/
+rag/uploads/
+rag/work/
 backend/__pycache__/
 **/__pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
 
 # --- OS / editor cruft ---
 .DS_Store
@@ -40,3 +43,9 @@ desktop.ini
 # --- Local environment ---
 .env
 *.local
+
+# --- Development / agent artifacts ---
+skills/
+HANDOFF.md
+PRODUCTION_AUDIT_REPORT.md
+PRODUCTION_HARDENING_SUMMARY.md

@@ -1,0 +1,60 @@
+{
+  "$comment": "PocketAI backend runtime settings (Phase 5). All paths are RELATIVE to the PocketAI root so the USB drive letter can change. The model server connection lives in config/model.json (single source of truth for llama.cpp).",
+  "backend": {
+    "host": "127.0.0.1",
+    "host_note": "Loopback only, enforced at startup. PocketAI never listens on the network.",
+    "port": 8090,
+    "port_note": "Backend API/UI port. llama-server uses 8091 (config/model.json).",
+    "log_level": "info"
+  },
+  "paths": {
+    "skills_dir": "skills",
+    "storage_dir": "storage",
+    "database_file": "storage/pocket_ai.db",
+    "logs_dir": "logs"
+  },
+  "chat": {
+    "max_message_chars": 8000,
+    "max_message_chars_note": "Hard cap on a single user message (request validation). ~2000 tokens.",
+    "max_history_messages": 20,
+    "chars_per_token_estimate": 4,
+    "enable_thinking": false,
+    "enable_thinking_note": "Qwen3.5 is a thinking model. Live smoke test (Phase 5): thinking ON spent the full 1536-token budget on reasoning in ~167s and returned no visible answer; thinking OFF answered the same query in ~12s. Default OFF for 8GB-class hardware; set true to trade latency for deeper reasoning."
+  },
+  "rag": {
+    "max_upload_mb": 25,
+    "max_upload_mb_note": "Per-file upload cap. Files are stored under rag/uploads/<doc_id>/ and nowhere else; PocketAI never scans folders or drives.",
+    "chunk_chars": 1200,
+    "chunk_overlap": 150,
+    "search_top_k": 6,
+    "search_top_k_note": "Hits returned by POST /search.",
+    "chat_top_k": 3,
+    "chat_context_max_chars": 4000,
+    "chat_context_max_chars_note": "Max chars of retrieved excerpts injected into the chat system prompt (~1000 tokens). Keeps RAG inside the SAFE-profile context budget.",
+    "allowed_extensions": [".pdf", ".txt", ".md", ".markdown", ".pptx"],
+    "retrieval_note": "BM25 lexical retrieval (Option B). Embeddings (Option A) are disabled on 8GB targets: they would need a second llama-server process (~300-500MB extra RAM). See rag/embeddings/base.py."
+  },
+  "image": {
+    "max_upload_mb": 10,
+    "max_upload_mb_note": "Per-image cap (clipboard/upload). Screenshots are usually 0.5-3 MB; 10 MB leaves headroom without risking 8GB RAM.",
+    "max_dimension": 2400,
+    "max_dimension_note": "Longest side; larger images are downscaled before OCR to bound memory and OCR time.",
+    "min_dimension": 8,
+    "allowed_extensions": [".png", ".jpg", ".jpeg", ".webp", ".bmp"],
+    "allowed_mime": ["image/png", "image/jpeg", "image/webp", "image/bmp", "image/x-ms-bmp"],
+    "tesseract_relative": "runtime/ocr/tesseract.exe",
+    "tessdata_relative": "runtime/ocr/tessdata",
+    "temp_dir_relative": "logs/image_tmp",
+    "ocr_enabled": true,
+    "ocr_language": "eng",
+    "ocr_language_note": "Offline OCR engine (portable Tesseract, bundled). No network, no cloud. The local Qwen model is text-only, so images become OCR text the supervisor reasons about.",
+    "max_pixels": 100000000,
+    "max_pixels_note": "Pillow decompression-bomb guard: beyond this the image is rejected, not decoded into RAM. Normal screenshots are far below this and are downscaled instead."
+  },
+  "security": {
+    "require_loopback_bind": true,
+    "developer_mode": false,
+    "developer_mode_note": "Off by default. When true, the GET /skills endpoint exposes the internal skill registry for debugging. Normal users never need it; the dashboard does not call it.",
+    "notes": "Localhost binding only; no arbitrary command execution anywhere in the backend; skill files are only read from the skills_dir below the PocketAI root; the model API key from model.json is never returned by any endpoint."
+  }
+}

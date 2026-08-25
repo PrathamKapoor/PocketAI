@@ -1,0 +1,3 @@
+# Dev-only dependencies (not shipped with the portable build).
+-r requirements.txt
+pytest>=8.0

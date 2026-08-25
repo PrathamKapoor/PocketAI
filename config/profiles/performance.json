@@ -1,0 +1,9 @@
+{
+  "$comment": "PERFORMANCE MODE - developer / high-memory machines (> selection.performance_above_total_gb with ample free RAM). Largest generation and history budgets. Still a single server slot; the win is context headroom, not parallelism.",
+  "description": "PERFORMANCE MODE - dev / high-memory machines with ample free RAM. Largest generation and history budgets.",
+  "max_generation_tokens": 2048,
+  "history_budget_tokens": 4000,
+  "parallel_requests": 1,
+  "parallel_requests_note": "Still 1 slot on the server; PERFORMANCE buys generation + history headroom, not parallelism.",
+  "recommended_server_context": 8192
+}

@@ -1,0 +1,37 @@
+{
+  "$comment": "PocketAI model + runtime configuration. All paths are RELATIVE to the PocketAI root so the USB drive letter can change (E:/F:/G:). 'auto' values are resolved by the launcher at startup. This file is the single source of truth; runtime/*.bat mirror these values for manual use.",
+  "model": {
+    "file": "models/Qwen3.5-4B-Q4_K_M.gguf",
+    "name": "Qwen3.5-4B Instruct",
+    "architecture": "qwen35",
+    "quantization": "Q4_K_M",
+    "size_bytes": 2740937888,
+    "hybrid": true,
+    "notes": "Hybrid SSM+Attention (full_attention_interval=4). Small KV cache; SSM layers use fixed-size recurrent state."
+  },
+  "runtime": {
+    "context_size": 4096,
+    "threads": "auto",
+    "threads_note": "Physical cores, detected at launch. Avoids SMT/logical cores which usually hurt llama.cpp.",
+    "batch_size": 512,
+    "ubatch_size": 512,
+    "n_gpu_layers": 0,
+    "n_gpu_layers_note": "CPU-only on target (no NVIDIA). Dev profile may override to offload to GPU.",
+    "flash_attention": true,
+    "flash_attention_note": "-fa on. Reduces RAM for the KV cache; validated for qwen35 CPU in build 10549.",
+    "kv_cache_type": "f16",
+    "load_mode": "auto",
+    "load_mode_note": "llama.cpp --load-mode (replaces deprecated --mmap/--mlock). auto = mmap unless unsupported.",
+    "seed": 42
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8091,
+    "port_note": "8091 chosen to avoid common conflicts (8080 Oracle/proxies, 11434 Ollama, 1234 LM Studio).",
+    "alias": "qwen3.5-4b",
+    "api_key": "b54260a632b845bb9cdf175def0adb0c",
+    "api_key_note": "Local-only obfuscation key, not a real secret: prevents other local processes / web pages from using the model API. Sent as 'Authorization: Bearer <key>'.",
+    "timeout_seconds": 600
+  },
+  "extra_flags": []
+}

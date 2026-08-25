@@ -1,0 +1,13 @@
+{
+  "$comment": "PocketAI hardware profile SELECTION rules (Phase 9). The profiles themselves live in config/profiles/<name>.json (safe / normal / performance). The backend selects ONE profile at startup from detected RAM and re-checks free memory before every inference. The llama.cpp server context is set at launch by the launcher using the selected profile's recommended_server_context; the backend then reads the live server context via GET /props and budgets history/generation within it. All token budgets are conservative because Qwen3.5 is a thinking model: reasoning tokens are generated BEFORE visible content and consume part of max_generation_tokens.",
+  "profiles_dir": "config/profiles",
+  "profiles_dir_note": "Each *.json file in this folder is one profile; the file stem is the profile id. 'safe' and 'normal' are required; 'performance' is optional.",
+  "selection": {
+    "force_safe_below_total_gb": 7,
+    "normal_requires_free_mb_at_startup": 4000,
+    "performance_above_total_gb": 12,
+    "performance_requires_free_mb_at_startup": 6000,
+    "min_free_ram_mb_for_inference": 1200,
+    "notes": "Total RAM < force_safe_below_total_gb -> always SAFE. Between that and performance_above_total_gb -> NORMAL only if >= normal_requires_free_mb_at_startup is free at startup, else SAFE. Above performance_above_total_gb -> PERFORMANCE if >= performance_requires_free_mb_at_startup is free (and the performance profile exists), else NORMAL. Independent of profile, the backend refuses a new inference (HTTP 503) when free RAM < min_free_ram_mb_for_inference, to keep 8GB machines out of swap. Phase 4 measured peak server RAM: 4.6GB."
+  }
+}
